@@ -15,9 +15,10 @@ class Api:
         self.config = config
 
     def log(self, line):
-        print(line)
-        if self.config.log is not None:
-            print(line, file=self.config.log)
+        if self.config.log is None:
+            print(line, flush=True)
+        else:
+            print(line, file=self.config.log, flush=True)
 
     async def forensics(self, report_type, req):
         if not self.config.forensics:
