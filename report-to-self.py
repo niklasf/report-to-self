@@ -53,7 +53,7 @@ class Api:
                 text = json.dumps(json.loads(text), indent=2)
             except ValueError:
                 pass
-            print(await req.text(), file=f)
+            print(text, file=f)
 
     async def handle_ct(self, req):
         self.log("nel,type=tls.cert.ct,value=1")
