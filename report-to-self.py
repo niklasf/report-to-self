@@ -12,7 +12,7 @@ import uuid
 import json
 import re
 
-TYPE_REGEX = re.compile("^[A-Za-z0-9.-_]*\Z")
+TYPE_REGEX = re.compile("^[A-Za-z0-9._\-]*\Z")
 
 class Api:
     def __init__(self, config):
