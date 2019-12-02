@@ -50,6 +50,11 @@ class Api:
         await self.forensics("default", req)
         raise aiohttp.web.HTTPNoContent
 
+    async def handle_dmarc(self, req):
+        self.log("nel,type=dmarc,value=1")
+        await self.forensics("dmarc", req)
+        raise aiohttp.web.HTTPNoContent
+
 
 def make_app(config):
     api = Api(config)
@@ -58,6 +63,7 @@ def make_app(config):
     app.add_routes([
         aiohttp.web.post("/report/ct", api.handle_ct),
         aiohttp.web.post("/report/default", api.handle_default),
+        aiohttp.web.post("/report/dmarc", api.handle_dmarc),
     ])
 
     return app
