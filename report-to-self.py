@@ -54,8 +54,27 @@ class Api:
         raise aiohttp.web.HTTPOk
 
     async def handle_default(self, req):
-        self.log("nel,type=default,value=1")
-        await self.forensics("default", req)
+        try:
+            body = await req.json()
+        except ValueError:
+            raise aiohttp.web.HTTPBadRequest
+
+        if not isinstance(body, list):
+            raise aiohttp.web.HTTPBadRequest
+
+        for item in body:
+            if not isinstance(item, dict):
+                raise aiohttp.web.HTTPBadRequest
+
+            report_type = item.get("type", "unknown")
+            body = item.get("body", {})
+            source_file = body.get("sourceFile")
+            if isinstance(source_file, str) and source_file.startswith("chrome-extension://"):
+                continue
+
+            self.log("nel,type={},value=1".format(report_type))
+            await self.forensics(report_type, req)
+
         raise aiohttp.web.HTTPOk
 
     async def handle_dmarc(self, req):
