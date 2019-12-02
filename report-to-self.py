@@ -44,9 +44,9 @@ class Api:
         await self.forensics("tls.cert.ct", req)
         raise aiohttp.web.HTTPNoContent
 
-    async def handle_csp(self, req):
-        self.log("nel,type=csp,value=1")
-        await self.forensics("csp", req)
+    async def handle_default(self, req):
+        self.log("nel,type=default,value=1")
+        await self.forensics("default", req)
         raise aiohttp.web.HTTPNoContent
 
 
@@ -56,7 +56,7 @@ def make_app(config):
     app = aiohttp.web.Application()
     app.add_routes([
         aiohttp.web.post("/report/ct", api.handle_ct),
-        aiohttp.web.post("/report/csp", api.handle_csp),
+        aiohttp.web.post("/report/default", api.handle_default),
     ])
 
     return app
