@@ -10,6 +10,9 @@ import os
 import os.path
 import uuid
 import json
+import re
+
+TYPE_REGEX = re.compile("^[A-Za-z0-9.-_]*\Z")
 
 class Api:
     def __init__(self, config):
@@ -73,8 +76,19 @@ class Api:
             if not isinstance(item, dict):
                 raise aiohttp.web.HTTPBadRequest
 
-            report_type = item.get("type", "unknown")
             body = item.get("body", {})
+            report_type = item.get("type", "unknown")
+
+            if report_type == "crash" and "reason" in body:
+                report_type = "crash.{}".format(body["reason"])
+            elif report_type in ["deprecation", "intervention"] and "id" in body:
+                report_type = "{}.{}".format(report_type, body["id"])
+            elif report_type == "network-error" and "type" in body:
+                report_type = "network-error.{}".format(body["type"])
+
+            if not TYPE_REGEX.match(report_type):
+                report_type = "unknown"
+
             source_file = body.get("sourceFile")
             if isinstance(source_file, str) and (
                     source_file.startswith("chrome-extension://") or
