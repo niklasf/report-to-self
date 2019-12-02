@@ -51,17 +51,17 @@ class Api:
     async def handle_ct(self, req):
         self.log("nel,type=tls.cert.ct,value=1")
         await self.forensics("tls.cert.ct", req)
-        raise aiohttp.web.HTTPNoContent
+        raise aiohttp.web.HTTPOk
 
     async def handle_default(self, req):
         self.log("nel,type=default,value=1")
         await self.forensics("default", req)
-        raise aiohttp.web.HTTPNoContent
+        raise aiohttp.web.HTTPOk
 
     async def handle_dmarc(self, req):
         self.log("nel,type=dmarc,value=1")
         await self.forensics("dmarc", req)
-        raise aiohttp.web.HTTPNoContent
+        raise aiohttp.web.HTTPOk
 
 
 def make_app(config):
