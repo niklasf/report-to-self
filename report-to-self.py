@@ -20,6 +20,12 @@ class Api:
         else:
             print(line, file=self.config.log, flush=True)
 
+    async def options(self, req):
+        return aiohttp.web.Response(status=204, headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS, POST",
+        })
+
     async def forensics(self, report_type, req):
         if not self.config.forensics:
             return
@@ -61,6 +67,9 @@ def make_app(config):
 
     app = aiohttp.web.Application()
     app.add_routes([
+        aiohttp.web.options("/report/ct", api.options),
+        aiohttp.web.options("/report/default", api.options),
+        aiohttp.web.options("/report/dmarc", api.options),
         aiohttp.web.post("/report/ct", api.handle_ct),
         aiohttp.web.post("/report/default", api.handle_default),
         aiohttp.web.post("/report/dmarc", api.handle_dmarc),
