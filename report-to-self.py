@@ -46,6 +46,12 @@ class Api:
             for header, value in req.headers.items():
                 print(header, value, sep=": ", file=f)
             print(file=f)
+
+            text = await req.text()
+            try:
+                text = json.dumps(json.loads(text), indent=2)
+            except ValueError:
+                pass
             print(await req.text(), file=f)
 
     async def handle_ct(self, req):
