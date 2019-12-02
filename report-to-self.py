@@ -5,6 +5,10 @@
 
 import argparse
 import aiohttp.web
+import datetime
+import os
+import os.path
+import uuid
 
 class Api:
     def __init__(self, config):
@@ -15,17 +19,29 @@ class Api:
         if self.config.log is not None:
             print(line, file=self.config.log)
 
-    async def dump_request(self, req):
-        dump = [req.method, " ", str(req.url), "\n"]
-        dump.append("\n")
-        for header, value in req.headers.items():
-            dump.extend([header, ": ", value, "\n"])
-        dump.append("\n")
-        dump.append(await req.text())
-        return dump
+    async def forensics(self, report_type, req):
+        if not self.config.forensics:
+            return
+
+        path = os.path.join(
+            self.config.forensics,
+            datetime.date.today().strftime('%Y-%m-%d'),
+            report_type,
+            str(uuid.uuid4()))
+
+        os.makedirs(os.path.dirname(path))
+
+        with open(path, "w") as f:
+            print(req.method, req.url, file=f)
+            print(file=f)
+            for header, value in req.headers.items():
+                print(header, value, sep=": ", file=f)
+            print(file=f)
+            print(await req.text(), file=f)
 
     async def handle_ct(self, req):
         self.log("nel,type=tls.cert.ct,value=1")
+        await self.forensics("tls.cert.ct", req)
         raise aiohttp.web.HTTPNoContent
 
 
