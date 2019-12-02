@@ -55,8 +55,8 @@ def make_app(config):
 
     app = aiohttp.web.Application()
     app.add_routes([
-        aiohttp.web.post("/ct", api.handle_ct),
-        aiohttp.web.post("/csp", api.handle_csp),
+        aiohttp.web.post("/report/ct", api.handle_ct),
+        aiohttp.web.post("/report/csp", api.handle_csp),
     ])
 
     return app
@@ -66,4 +66,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--log", type=argparse.FileType("a"), help="Also log to this file instead of only stdout")
     parser.add_argument("--forensics", help="Base directory for forensic request dumps")
-    aiohttp.web.run_app(make_app(parser.parse_args()))
+    parser.add_argument("--port", default=9390, help="Web server port")
+    config = parser.parse_args()
+    aiohttp.web.run_app(make_app(config), port=config.port)
