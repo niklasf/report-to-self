@@ -76,7 +76,9 @@ class Api:
             report_type = item.get("type", "unknown")
             body = item.get("body", {})
             source_file = body.get("sourceFile")
-            if isinstance(source_file, str) and source_file.startswith("chrome-extension://"):
+            if isinstance(source_file, str) and (
+                    source_file.startswith("chrome-extension://") or
+                    source_file.startswith("file://"))
                 continue
 
             self.log("nel,type={},value=1".format(report_type))
