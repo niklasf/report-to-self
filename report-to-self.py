@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Self hosted endpoint for HTTP Report-To and NEL."""
+"""Self hosted endpoint for HTTP Report-To, NEL, Expect-CT and DMARC."""
 
 import argparse
 import aiohttp.web
@@ -12,7 +12,9 @@ import uuid
 import json
 import re
 
+
 TYPE_REGEX = re.compile("^[A-Za-z0-9._\-]*\Z")
+
 
 class Api:
     def __init__(self, config):
@@ -24,7 +26,7 @@ class Api:
         else:
             print(line, file=self.config.log, flush=True)
 
-    async def options(self, req):
+    async def cors(self, req):
         return aiohttp.web.Response(status=204, headers={
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS, POST",
@@ -92,7 +94,8 @@ class Api:
             source_file = body.get("sourceFile")
             if isinstance(source_file, str) and (
                     source_file.startswith("chrome-extension://") or
-                    source_file.startswith("file://")):
+                    source_file.startswith("file://") or
+                    source_file.startswith("https://gc.kis.v2.scr.kaspersky-labs.com/")):
                 continue
 
             self.log("nel,type={},value=1".format(report_type))
@@ -111,9 +114,9 @@ def make_app(config):
 
     app = aiohttp.web.Application()
     app.add_routes([
-        aiohttp.web.options("/report/ct", api.options),
-        aiohttp.web.options("/report/default", api.options),
-        aiohttp.web.options("/report/dmarc", api.options),
+        aiohttp.web.options("/report/ct", api.cors),
+        aiohttp.web.options("/report/default", api.cors),
+        aiohttp.web.options("/report/dmarc", api.cors),
         aiohttp.web.post("/report/ct", api.handle_ct),
         aiohttp.web.post("/report/default", api.handle_default),
         aiohttp.web.post("/report/dmarc", api.handle_dmarc),
@@ -124,8 +127,8 @@ def make_app(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--log", type=argparse.FileType("a"), help="Also log to this file instead of only stdout")
-    parser.add_argument("--forensics", help="Base directory for forensic request dumps")
-    parser.add_argument("--port", default=9390, help="Web server port")
+    parser.add_argument("--log", type=argparse.FileType("a"), help="log to this file instead of stdout")
+    parser.add_argument("--forensics", help="base directory for forensic request dumps")
+    parser.add_argument("--port", default=9390, help="web server port")
     config = parser.parse_args()
     aiohttp.web.run_app(make_app(config), port=config.port)
