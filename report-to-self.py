@@ -98,6 +98,11 @@ class Api:
                     source_file.startswith("https://gc.kis.v2.scr.kaspersky-labs.com/")):
                 continue
 
+            # Bogus reports:
+            # https://bugs.chromium.org/p/chromium/issues/detail?id=915648
+            if body.get("blockedURL") == "eval":
+                continue
+
             self.log("nel,type={},value=1".format(report_type))
             await self.forensics(report_type, req)
 
