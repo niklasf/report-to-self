@@ -95,7 +95,8 @@ class Api:
             if isinstance(source_file, str) and (
                     source_file.startswith("chrome-extension://") or
                     source_file.startswith("file://") or
-                    source_file.startswith("https://gc.kis.v2.scr.kaspersky-labs.com/")):
+                    source_file.startswith("https://gc.kis.v2.scr.kaspersky-labs.com/") or
+                    source_file.startswith("https://domclickext.xyz/")):
                 continue
 
             # Bogus reports:
